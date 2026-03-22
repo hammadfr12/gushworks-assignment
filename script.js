@@ -105,16 +105,26 @@
 
     dropdowns.forEach(dropdown => {
       const trigger = $('.nav-link', dropdown);
+
+      // Open on click (toggle)
       on(trigger, 'click', (e) => {
         e.preventDefault();
         e.stopPropagation();
         const isOpen = dropdown.classList.contains('active');
-        // close all
         dropdowns.forEach(d => d.classList.remove('active'));
         if (!isOpen) dropdown.classList.add('active');
       });
+
+      // Open on hover (desktop)
+      on(dropdown, 'mouseenter', () => {
+        dropdown.classList.add('active');
+      });
+      on(dropdown, 'mouseleave', () => {
+        dropdown.classList.remove('active');
+      });
     });
 
+    // Close on outside click
     on(document, 'click', () => {
       dropdowns.forEach(d => d.classList.remove('active'));
     });
