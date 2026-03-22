@@ -218,98 +218,82 @@
      panning the zoomed image as the cursor moves over the carousel.
   ----------------------------------------------------------------------- */
   function initZoom() {
-    /* ------------------------------------------------------------------
-       Hover to zoom — matches Figma design:
-       1. A lens box appears ON the carousel image following the cursor
-       2. A zoom preview panel appears to the RIGHT of the carousel
-          showing a magnified (2.5x) view that pans with the cursor
-    ------------------------------------------------------------------ */
-    const carousels = $$('.carousel[data-zoom]');
-    if (!carousels.length) return;
+    const carousel = document.querySelector('.carousel[data-zoom]');
+    if (!carousel) return;
 
-    carousels.forEach(carousel => {
-      const wrapper  = carousel.closest('.carousel-wrapper');
-      if (!wrapper) return;
+    const wrapper  = carousel.closest('.carousel-wrapper');
+    if (!wrapper) return;
 
-      const zoomPanel = wrapper.querySelector('.zoom-panel');
-      if (!zoomPanel) return;
+    const zoomPanel = wrapper.querySelector('.zoom-panel');
+    const zoomImg   = zoomPanel && zoomPanel.querySelector('img');
+    const lens      = carousel.querySelector('.zoom-lens');
+    if (!zoomPanel || !zoomImg || !lens) return;
 
-      const zoomImg  = zoomPanel.querySelector('img');
-      const lens     = carousel.querySelector('.zoom-lens');
-      if (!zoomImg || !lens) return;
+    const LW = 150; // lens width
+    const LH = 150; // lens height
 
-      const ZOOM     = 2.5;   // magnification factor
-      const LENS_W   = 160;   // lens box width px
-      const LENS_H   = 160;   // lens box height px
+    function getActiveImg() {
+      return carousel.querySelector('.carousel__slide.active img')
+          || carousel.querySelector('.carousel__slide img');
+    }
 
-      /* Get active slide image src */
-      function getActiveSrc() {
-        const active = carousel.querySelector('.carousel__slide.active img');
-        if (active) return active.src;
-        const first = carousel.querySelector('.carousel__slide img');
-        return first ? first.src : '';
+    function show() {
+      const img = getActiveImg();
+      if (!img) return;
+      zoomImg.src = img.src;
+      const pw = 420, ph = 420;
+      const iw = pw * 2.5, ih = ph * 2.5;
+      zoomImg.style.width  = iw + 'px';
+      zoomImg.style.height = ih + 'px';
+      lens.style.width  = LW + 'px';
+      lens.style.height = LH + 'px';
+      lens.style.display = 'block';
+      zoomPanel.classList.add('visible');
+    }
+
+    function hide() {
+      lens.style.display = 'none';
+      zoomPanel.classList.remove('visible');
+    }
+
+    function move(e) {
+      const rect = carousel.getBoundingClientRect();
+
+      // Clamp lens inside carousel
+      let lx = e.clientX - rect.left - LW / 2;
+      let ly = e.clientY - rect.top  - LH / 2;
+      lx = Math.max(0, Math.min(lx, rect.width  - LW));
+      ly = Math.max(0, Math.min(ly, rect.height - LH));
+
+      lens.style.left = lx + 'px';
+      lens.style.top  = ly + 'px';
+
+      // Position zoom panel to the RIGHT of carousel using fixed coords
+      const panelX = rect.right + 16;
+      const panelY = rect.top;
+      zoomPanel.style.left = panelX + 'px';
+      zoomPanel.style.top  = panelY + 'px';
+
+      // Pan zoom image based on lens position
+      const pw = 420, ph = 420;
+      const iw = pw * 2.5, ih = ph * 2.5;
+      const rx = lx / (rect.width  - LW);
+      const ry = ly / (rect.height - LH);
+      zoomImg.style.left = -(rx * (iw - pw)) + 'px';
+      zoomImg.style.top  = -(ry * (ih - ph)) + 'px';
+
+      // Sync src if slide changed
+      const img = getActiveImg();
+      if (img && zoomImg.src !== img.src) {
+        zoomImg.src = img.src;
+        zoomImg.style.width  = iw + 'px';
+        zoomImg.style.height = ih + 'px';
       }
+    }
 
-      /* Show lens and zoom panel */
-      carousel.addEventListener('mouseenter', () => {
-        const src = getActiveSrc();
-        if (src) {
-          zoomImg.src = src;
-          // Set zoom image size = panel size * ZOOM
-          const pw = zoomPanel.offsetWidth  || 420;
-          const ph = zoomPanel.offsetHeight || 420;
-          zoomImg.style.width  = (pw * ZOOM) + 'px';
-          zoomImg.style.height = (ph * ZOOM) + 'px';
-        }
-        lens.style.width  = LENS_W + 'px';
-        lens.style.height = LENS_H + 'px';
-        lens.style.display = 'block';
-        zoomPanel.classList.add('visible');
-      });
-
-      /* Hide both on mouse leave */
-      carousel.addEventListener('mouseleave', () => {
-        lens.style.display = 'none';
-        zoomPanel.classList.remove('visible');
-      });
-
-      /* Update lens position and zoom pan on mouse move */
-      carousel.addEventListener('mousemove', (e) => {
-        const rect = carousel.getBoundingClientRect();
-        let x = e.clientX - rect.left;
-        let y = e.clientY - rect.top;
-
-        /* Clamp lens so it stays inside the carousel */
-        let lensX = x - LENS_W / 2;
-        let lensY = y - LENS_H / 2;
-        lensX = Math.max(0, Math.min(lensX, rect.width  - LENS_W));
-        lensY = Math.max(0, Math.min(lensY, rect.height - LENS_H));
-
-        /* Position lens */
-        lens.style.left = lensX + 'px';
-        lens.style.top  = lensY + 'px';
-
-        /* Pan zoom image: map lens position to zoom image offset */
-        const pw = zoomPanel.offsetWidth  || 420;
-        const ph = zoomPanel.offsetHeight || 420;
-        const iW = pw * ZOOM;
-        const iH = ph * ZOOM;
-
-        const ratioX = lensX / (rect.width  - LENS_W);
-        const ratioY = lensY / (rect.height - LENS_H);
-
-        zoomImg.style.left = -(ratioX * (iW - pw)) + 'px';
-        zoomImg.style.top  = -(ratioY * (iH - ph)) + 'px';
-
-        /* Keep zoom src in sync when slide changes */
-        const src = getActiveSrc();
-        if (src && !zoomImg.src.endsWith(src.split('/').pop())) {
-          zoomImg.src = src;
-          zoomImg.style.width  = iW + 'px';
-          zoomImg.style.height = iH + 'px';
-        }
-      });
-    });
+    carousel.addEventListener('mouseenter', show);
+    carousel.addEventListener('mouseleave', hide);
+    carousel.addEventListener('mousemove', move);
   }
 
   /* -----------------------------------------------------------------------

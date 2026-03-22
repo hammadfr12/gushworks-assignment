@@ -471,46 +471,34 @@ ul { list-style: none; }
   display: flex; align-items: center; gap: 4px;
   pointer-events: none;
 }
-/* Lens box that appears ON the main image */
 .zoom-lens {
   position: absolute;
-  border: 2px solid rgba(255,255,255,0.8);
-  background: rgba(255,255,255,0.15);
+  border: 2px solid rgba(255,255,255,0.9);
+  background: rgba(200,220,255,0.15);
   pointer-events: none;
   display: none;
-  z-index: 10;
-  box-shadow: 0 0 0 1px rgba(0,0,0,0.2);
+  z-index: 20;
+  cursor: crosshair;
 }
-
-/* Zoom preview panel — positioned to the RIGHT of carousel,
-   overlapping the product info column, matching the Figma */
 .zoom-panel {
-  position: absolute;
-  top: 0;
-  left: calc(100% + 16px);
+  position: fixed;
   width: 420px;
   height: 420px;
   border-radius: 16px;
-  border: 1px solid var(--border);
-  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.22);
   overflow: hidden;
   pointer-events: none;
-  opacity: 0;
-  visibility: hidden;
-  z-index: 50;
+  display: none;
+  z-index: 9999;
   background: #fff;
-  transition: opacity 0.15s ease, visibility 0.15s ease;
 }
 .zoom-panel img {
   position: absolute;
   top: 0; left: 0;
   max-width: none;
-  object-fit: cover;
 }
-.zoom-panel.visible {
-  opacity: 1;
-  visibility: visible;
-}
+.zoom-panel.visible { display: block; }
 
 /* Make carousel-wrapper position:relative so zoom-panel is relative to it */
 .carousel-wrapper {
