@@ -994,11 +994,12 @@ ul { list-style: none; }
 }
 .footer-brand-card__logo img { height: 45px; width: auto; object-fit: contain; }
 .footer-brand-card__tagline {
-  font-size: clamp(16px, 2vw, 22px);
-  font-weight: 600;
+  font-size: clamp(18px, 2vw, 24px);
+  font-weight: 700;
   color: var(--text-primary);
   text-align: right;
-  line-height: 1.4;
+  line-height: 1.35;
+  max-width: 420px;
 }
 .footer-brand-card__tagline span { color: var(--primary); }
 
@@ -1037,8 +1038,13 @@ ul { list-style: none; }
   width: 20px; flex-shrink: 0;
   display: flex; align-items: flex-start;
   padding-top: 2px;
-  color: var(--primary);
+  color: var(--primary); /* default — overridden per-item below */
 }
+/* Distinct icon colors matching the Figma design */
+.footer-contact-item:nth-child(1) .footer-contact-icon { color: #2B73CC; } /* location → blue     */
+.footer-contact-item:nth-child(2) .footer-contact-icon { color: #16A34A; } /* phone    → green    */
+.footer-contact-item:nth-child(3) .footer-contact-icon { color: #7C3AED; } /* email    → purple   */
+.footer-contact-item:nth-child(4) .footer-contact-icon { color: #EA580C; } /* support  → orange  */
 
 /* Social icons */
 .footer-socials { display: flex; gap: 10px; margin-top: 20px; }
@@ -1052,10 +1058,12 @@ ul { list-style: none; }
   transition: all var(--transition);
   font-size: 14px; font-weight: 700;
 }
+.footer-social-link:nth-child(1) { color: #0A66C2; }   /* LinkedIn  */
+.footer-social-link:nth-child(2) { color: #1A1A1A; }   /* X/Twitter */
+.footer-social-link:nth-child(3) { color: #E1306C; }   /* Instagram */
 .footer-social-link:hover {
-  background: var(--primary);
-  color: var(--white);
-  border-color: var(--primary);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
 }
 
 /* Bottom bar */
