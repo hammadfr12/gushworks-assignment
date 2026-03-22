@@ -101,33 +101,40 @@
      PRODUCTS DROPDOWN
   ----------------------------------------------------------------------- */
   function initDropdown() {
+    /* -----------------------------------------------------------------
+       Dropdown opens on HOVER (mouseenter/mouseleave on the whole
+       .nav-dropdown element which includes both the trigger button AND
+       the menu — so moving the mouse from button to menu items does NOT
+       close it).
+       Also supports click-toggle for keyboard/accessibility.
+    ----------------------------------------------------------------- */
     const dropdowns = $$('.nav-dropdown');
 
     dropdowns.forEach(dropdown => {
-      var btn = dropdown.querySelector('.nav-link');
-      if (!btn) return;
+      const trigger = $('.nav-link', dropdown);
 
-      btn.addEventListener('click', function(e) {
+      // Click toggle (accessibility + mobile fallback)
+      on(trigger, 'click', (e) => {
         e.preventDefault();
         e.stopPropagation();
-        var isOpen = dropdown.classList.contains('active');
-        dropdowns.forEach(function(d) { d.classList.remove('active'); });
+        const isOpen = dropdown.classList.contains('active');
+        dropdowns.forEach(d => d.classList.remove('active'));
         if (!isOpen) dropdown.classList.add('active');
-        btn.setAttribute('aria-expanded', !isOpen ? 'true' : 'false');
       });
 
-      // Also open on hover for desktop
-      dropdown.addEventListener('mouseenter', function() {
+      // Hover — open on mouseenter of whole dropdown (button + menu)
+      on(dropdown, 'mouseenter', () => {
         dropdown.classList.add('active');
-        btn.setAttribute('aria-expanded', 'true');
       });
-      dropdown.addEventListener('mouseleave', function() {
+
+      // Hover — close on mouseleave of whole dropdown
+      on(dropdown, 'mouseleave', () => {
         dropdown.classList.remove('active');
-        btn.setAttribute('aria-expanded', 'false');
       });
     });
 
-    on(document, 'click',, () => {
+    // Click outside closes all
+    on(document, 'click', () => {
       dropdowns.forEach(d => d.classList.remove('active'));
     });
   }
@@ -176,8 +183,6 @@
         current = (index + total) % total;
         track.style.transform = `translateX(-${current * 100}%)`;
 
-        // Add .active to current slide so zoom can find it
-        slides.forEach((s, i) => s.classList.toggle('active', i === current));
         dots.forEach((d, i) => d.classList.toggle('active', i === current));
         thumbs.forEach((t, i) => t.classList.toggle('active', i === current));
       }
@@ -213,67 +218,80 @@
      panning the zoomed image as the cursor moves over the carousel.
   ----------------------------------------------------------------------- */
   function initZoom() {
-    // Only runs on product-detail page
-    var carousel = document.getElementById('product-carousel');
-    if (!carousel) return;
+    /* ---------------------------------------------------------------
+       Zoom on hover for product carousel only (.carousel[data-zoom])
+       
+       How it works:
+       - zoom-panel is position:fixed, hidden by default (display:none)
+       - On mousemove: panel is shown, positioned to the right of cursor
+       - zoom image inside panel is 200%x200% of panel = 800x800px
+       - Panning: image moves from 0% to -50% (= 0 to -400px) as cursor
+         moves from left→right / top→bottom across the carousel
+       - On mouseleave: panel is hidden
+    --------------------------------------------------------------- */
+    const carousels = $$('.carousel[data-zoom]');
+    carousels.forEach(carousel => {
+      // Find zoom panel — it's a sibling inside .carousel-wrapper
+      const wrapper   = carousel.closest('.carousel-wrapper');
+      const zoomPanel = wrapper ? $('.zoom-panel', wrapper) : null;
+      if (!zoomPanel) return;
 
-    // Zoom panel is outside carousel-wrapper so fixed positioning works
-    var panel = document.getElementById('zoomPanel');
-    if (!panel) return;
+      const zoomImg = $('img', zoomPanel);
+      if (!zoomImg) return;
 
-    var img = panel.querySelector('img');
-    if (!img) return;
+      // Hide on mouse leave
+      on(carousel, 'mouseleave', () => {
+        zoomPanel.style.display = 'none';
+      });
 
-    var ZOOM = 2.5;
-    var PW = 420, PH = 420;
-    var iW = PW * ZOOM;
-    var iH = PH * ZOOM;
+      on(carousel, 'mousemove', (e) => {
+        // Show panel on first move (avoids flash at 0,0 on mouseenter)
+        zoomPanel.style.display = 'block';
 
-    // Pre-set image size
-    img.style.width  = iW + 'px';
-    img.style.height = iH + 'px';
+        const rect = carousel.getBoundingClientRect();
+        const x    = e.clientX - rect.left;
+        const y    = e.clientY - rect.top;
+        // Cursor position as ratio 0→1
+        const pctX = Math.max(0, Math.min(1, x / rect.width));
+        const pctY = Math.max(0, Math.min(1, y / rect.height));
 
-    function getSrc() {
-      var a = carousel.querySelector('.carousel__slide.active img');
-      if (a) return a.src;
-      var f = carousel.querySelector('.carousel__slide img');
-      return f ? f.src : '';
-    }
+        // Position zoom panel to the right of the cursor
+        // (flip to left side if near right viewport edge)
+        const panelW = 400;
+        const panelH = 400;
+        let panelLeft = e.clientX + 20;
+        let panelTop  = e.clientY - panelH / 2;
 
-    carousel.addEventListener('mouseenter', function() {
-      var src = getSrc();
-      if (src) img.src = src;
-    });
+        if (panelLeft + panelW > window.innerWidth - 8)
+          panelLeft = e.clientX - panelW - 20;
+        if (panelTop < 8)
+          panelTop = 8;
+        if (panelTop + panelH > window.innerHeight - 8)
+          panelTop = window.innerHeight - panelH - 8;
 
-    carousel.addEventListener('mouseleave', function() {
-      panel.style.display = 'none';
-    });
+        zoomPanel.style.left = panelLeft + 'px';
+        zoomPanel.style.top  = panelTop  + 'px';
 
-    carousel.addEventListener('mousemove', function(e) {
-      // Show panel
-      panel.style.display = 'block';
+        // Pan the zoomed image
+        // Image is 200%x200% of panel = 800x800px
+        // Panel is 400x400px → max pan = 400px = 50% of image
+        // So: left goes from 0% to -50%, top goes from 0% to -50%
+        zoomImg.style.left = (-pctX * 50) + '%';
+        zoomImg.style.top  = (-pctY * 50) + '%';
 
-      var r = carousel.getBoundingClientRect();
-
-      // Position panel to the right of carousel using viewport coords
-      var px = r.right + 16;
-      var py = r.top;
-      if (px + PW > window.innerWidth - 8) px = r.left - PW - 16;
-      if (py + PH > window.innerHeight - 8) py = window.innerHeight - PH - 8;
-      panel.style.left = px + 'px';
-      panel.style.top  = py + 'px';
-
-      // Pan zoom image based on cursor position
-      var cx = Math.max(0, Math.min(e.clientX - r.left, r.width));
-      var cy = Math.max(0, Math.min(e.clientY - r.top, r.height));
-      var rx = cx / r.width;
-      var ry = cy / r.height;
-      img.style.left = -(rx * (iW - PW)) + 'px';
-      img.style.top  = -(ry * (iH - PH)) + 'px';
-
-      // Sync src with active slide
-      var src = getSrc();
-      if (src && img.src !== src) img.src = src;
+        // Sync zoom image src with currently visible slide
+        const track     = $('.carousel__track', carousel);
+        const style     = window.getComputedStyle(track);
+        const matrix    = new DOMMatrix(style.transform);
+        const slideW    = rect.width;
+        const activeIdx = slideW > 0 ? Math.round(-matrix.m41 / slideW) : 0;
+        const slides    = $$('.carousel__slide', track);
+        const active    = slides[activeIdx] || slides[0];
+        if (active) {
+          const img = $('img', active);
+          if (img && img.src !== zoomImg.src) zoomImg.src = img.src;
+        }
+      });
     });
   }
 
