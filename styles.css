@@ -471,31 +471,50 @@ ul { list-style: none; }
   display: flex; align-items: center; gap: 4px;
   pointer-events: none;
 }
+/* Lens box that appears ON the main image */
+.zoom-lens {
+  position: absolute;
+  border: 2px solid rgba(255,255,255,0.8);
+  background: rgba(255,255,255,0.15);
+  pointer-events: none;
+  display: none;
+  z-index: 10;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.2);
+}
+
+/* Zoom preview panel — positioned to the RIGHT of carousel,
+   overlapping the product info column, matching the Figma */
 .zoom-panel {
-  position: fixed;
-  top: 0; left: 0;
-  width: 380px; height: 380px;
+  position: absolute;
+  top: 0;
+  left: calc(100% + 16px);
+  width: 420px;
+  height: 420px;
   border-radius: 16px;
-  border: 2px solid var(--border);
-  box-shadow: 0 16px 48px rgba(0,0,0,0.25);
+  border: 1px solid var(--border);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
   overflow: hidden;
   pointer-events: none;
   opacity: 0;
   visibility: hidden;
-  z-index: 9999;
+  z-index: 50;
   background: #fff;
   transition: opacity 0.15s ease, visibility 0.15s ease;
 }
 .zoom-panel img {
-  width: 950px; height: 950px;
-  max-width: none;
-  object-fit: cover;
   position: absolute;
   top: 0; left: 0;
+  max-width: none;
+  object-fit: cover;
 }
 .zoom-panel.visible {
   opacity: 1;
   visibility: visible;
+}
+
+/* Make carousel-wrapper position:relative so zoom-panel is relative to it */
+.carousel-wrapper {
+  position: relative !important;
 }
 @keyframes zoomFadeIn {
   from { opacity: 0; transform: scale(0.96); }
