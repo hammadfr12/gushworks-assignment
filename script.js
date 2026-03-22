@@ -221,79 +221,82 @@
     const carousel = document.querySelector('.carousel[data-zoom]');
     if (!carousel) return;
 
-    const wrapper  = carousel.closest('.carousel-wrapper');
+    const wrapper   = carousel.closest('.carousel-wrapper');
     if (!wrapper) return;
 
     const zoomPanel = wrapper.querySelector('.zoom-panel');
     const zoomImg   = zoomPanel && zoomPanel.querySelector('img');
-    const lens      = carousel.querySelector('.zoom-lens');
+    const lens      = wrapper.querySelector('.zoom-lens');
     if (!zoomPanel || !zoomImg || !lens) return;
 
-    const LW = 150; // lens width
-    const LH = 150; // lens height
+    const LW = 150;
+    const LH = 150;
+    const ZOOM = 2.5;
+    const PW = 420;
+    const PH = 420;
 
-    function getActiveImg() {
-      return carousel.querySelector('.carousel__slide.active img')
-          || carousel.querySelector('.carousel__slide img');
+    function getActiveSrc() {
+      const a = carousel.querySelector('.carousel__slide.active img');
+      if (a) return a.src;
+      const f = carousel.querySelector('.carousel__slide img');
+      return f ? f.src : '';
     }
 
-    function show() {
-      const img = getActiveImg();
-      if (!img) return;
-      zoomImg.src = img.src;
-      const pw = 420, ph = 420;
-      const iw = pw * 2.5, ih = ph * 2.5;
-      zoomImg.style.width  = iw + 'px';
-      zoomImg.style.height = ih + 'px';
+    function updateZoomImg() {
+      const src = getActiveSrc();
+      if (src) {
+        zoomImg.src = src;
+        zoomImg.style.width  = (PW * ZOOM) + 'px';
+        zoomImg.style.height = (PH * ZOOM) + 'px';
+      }
+    }
+
+    carousel.addEventListener('mouseenter', () => {
+      updateZoomImg();
       lens.style.width  = LW + 'px';
       lens.style.height = LH + 'px';
       lens.style.display = 'block';
       zoomPanel.classList.add('visible');
-    }
+    });
 
-    function hide() {
+    carousel.addEventListener('mouseleave', () => {
       lens.style.display = 'none';
       zoomPanel.classList.remove('visible');
-    }
+    });
 
-    function move(e) {
-      const rect = carousel.getBoundingClientRect();
+    carousel.addEventListener('mousemove', (e) => {
+      const cRect = carousel.getBoundingClientRect();
+      const wRect = wrapper.getBoundingClientRect();
 
-      // Clamp lens inside carousel
-      let lx = e.clientX - rect.left - LW / 2;
-      let ly = e.clientY - rect.top  - LH / 2;
-      lx = Math.max(0, Math.min(lx, rect.width  - LW));
-      ly = Math.max(0, Math.min(ly, rect.height - LH));
+      // Cursor position relative to carousel
+      let cx = e.clientX - cRect.left;
+      let cy = e.clientY - cRect.top;
 
-      lens.style.left = lx + 'px';
-      lens.style.top  = ly + 'px';
+      // Lens position clamped inside carousel, but relative to wrapper
+      let lx = cx - LW / 2;
+      let ly = cy - LH / 2;
+      lx = Math.max(0, Math.min(lx, cRect.width  - LW));
+      ly = Math.max(0, Math.min(ly, cRect.height - LH));
 
-      // Position zoom panel to the RIGHT of carousel using fixed coords
-      const panelX = rect.right + 16;
-      const panelY = rect.top;
-      zoomPanel.style.left = panelX + 'px';
-      zoomPanel.style.top  = panelY + 'px';
+      // Offset from wrapper top-left
+      lens.style.left = (cRect.left - wRect.left + lx) + 'px';
+      lens.style.top  = (cRect.top  - wRect.top  + ly) + 'px';
 
-      // Pan zoom image based on lens position
-      const pw = 420, ph = 420;
-      const iw = pw * 2.5, ih = ph * 2.5;
-      const rx = lx / (rect.width  - LW);
-      const ry = ly / (rect.height - LH);
-      zoomImg.style.left = -(rx * (iw - pw)) + 'px';
-      zoomImg.style.top  = -(ry * (ih - ph)) + 'px';
+      // Zoom panel: fixed, to the right of carousel
+      zoomPanel.style.left = (cRect.right + 16) + 'px';
+      zoomPanel.style.top  = cRect.top + 'px';
 
-      // Sync src if slide changed
-      const img = getActiveImg();
-      if (img && zoomImg.src !== img.src) {
-        zoomImg.src = img.src;
-        zoomImg.style.width  = iw + 'px';
-        zoomImg.style.height = ih + 'px';
-      }
-    }
+      // Pan zoom image
+      const iW = PW * ZOOM;
+      const iH = PH * ZOOM;
+      const rx = lx / Math.max(1, cRect.width  - LW);
+      const ry = ly / Math.max(1, cRect.height - LH);
+      zoomImg.style.left = -(rx * (iW - PW)) + 'px';
+      zoomImg.style.top  = -(ry * (iH - PH)) + 'px';
 
-    carousel.addEventListener('mouseenter', show);
-    carousel.addEventListener('mouseleave', hide);
-    carousel.addEventListener('mousemove', move);
+      // Sync src
+      updateZoomImg();
+    });
   }
 
   /* -----------------------------------------------------------------------
