@@ -209,58 +209,94 @@
      panning the zoomed image as the cursor moves over the carousel.
   ----------------------------------------------------------------------- */
   function initZoom() {
+    /* ------------------------------------------------------------------
+       Zoom on hover — only runs on .carousel[data-zoom] elements.
+       Creates a fixed zoom panel that follows the cursor and shows
+       a 2.5x magnified version of the active slide image.
+    ------------------------------------------------------------------ */
     const carousels = $$('.carousel[data-zoom]');
+    if (!carousels.length) return;
+
     carousels.forEach(carousel => {
-      const zoomPanel = $('.zoom-panel');
+      // Find the zoom panel — it's a sibling inside .carousel-wrapper
+      const wrapper   = carousel.closest('.carousel-wrapper') || carousel.parentElement;
+      const zoomPanel = wrapper ? wrapper.querySelector('.zoom-panel') : document.querySelector('.zoom-panel');
       if (!zoomPanel) return;
 
-      const zoomImg = $('img', zoomPanel);
+      const zoomImg = zoomPanel.querySelector('img');
+      if (!zoomImg) return;
 
-      on(carousel, 'mouseenter', () => zoomPanel.classList.add('visible'));
-      on(carousel, 'mouseleave', () => zoomPanel.classList.remove('visible'));
+      const ZOOM      = 2.5;   // magnification
+      const PANEL_W   = 380;
+      const PANEL_H   = 380;
+      const OFFSET    = 24;    // px gap between cursor and panel
 
-      on(carousel, 'mousemove', (e) => {
-        const rect  = carousel.getBoundingClientRect();
-        const x     = e.clientX - rect.left;
-        const y     = e.clientY - rect.top;
-        const pctX  = x / rect.width;
-        const pctY  = y / rect.height;
-
-        // --- Position zoom panel near cursor, clamped inside viewport ---
-        const panelW    = 380;
-        const panelH    = 380;
-        let panelLeft   = e.clientX + 20;
-        let panelTop    = e.clientY - panelH / 2;
-
-        if (panelLeft + panelW > window.innerWidth)  panelLeft = e.clientX - panelW - 20;
-        if (panelTop < 8)                             panelTop  = 8;
-        if (panelTop + panelH > window.innerHeight - 8) panelTop = window.innerHeight - panelH - 8;
-
-        zoomPanel.style.left = panelLeft + 'px';
-        zoomPanel.style.top  = panelTop  + 'px';
-
-        // --- Pan the zoomed image based on cursor position ---
-        if (zoomImg) {
-          zoomImg.style.left = (-pctX * 100) + '%';
-          zoomImg.style.top  = (-pctY * 100) + '%';
+      /* Get the currently visible slide image src */
+      function getActiveImgSrc() {
+        // First try: look for .active slide
+        const activeSlide = carousel.querySelector('.carousel__slide.active');
+        if (activeSlide) {
+          const img = activeSlide.querySelector('img');
+          if (img) return img.src;
         }
-
-        // --- Update zoom src: find the CURRENTLY ACTIVE slide's image ---
-        if (zoomImg) {
-          const track  = $('.carousel__track', carousel);
-          // Derive active index from track's translateX offset
-          const style  = window.getComputedStyle(track);
-          const matrix = new DOMMatrix(style.transform);
-          const slideW = carousel.getBoundingClientRect().width;
-          const activeIdx = slideW > 0 ? Math.round(-matrix.m41 / slideW) : 0;
-
-          const slides    = $$('.carousel__slide', track);
-          const activeSlide = slides[activeIdx] || slides[0];
-          if (activeSlide) {
-            const img = $('img', activeSlide);
-            if (img && img.src !== zoomImg.src) zoomImg.src = img.src;
+        // Fallback: compute from track translateX
+        const track = carousel.querySelector('.carousel__track');
+        if (track) {
+          const matrix   = new DOMMatrix(window.getComputedStyle(track).transform);
+          const slideW   = carousel.getBoundingClientRect().width;
+          const idx      = slideW > 0 ? Math.round(-matrix.m41 / slideW) : 0;
+          const slides   = track.querySelectorAll('.carousel__slide');
+          const slide    = slides[Math.max(0, Math.min(idx, slides.length - 1))];
+          if (slide) {
+            const img = slide.querySelector('img');
+            if (img) return img.src;
           }
         }
+        // Last resort: first slide image
+        const firstImg = carousel.querySelector('.carousel__slide img');
+        return firstImg ? firstImg.src : '';
+      }
+
+      /* Show zoom panel on mouse enter */
+      carousel.addEventListener('mouseenter', () => {
+        const src = getActiveImgSrc();
+        if (src) zoomImg.src = src;
+        zoomPanel.classList.add('visible');
+      });
+
+      /* Hide zoom panel on mouse leave */
+      carousel.addEventListener('mouseleave', () => {
+        zoomPanel.classList.remove('visible');
+      });
+
+      /* Update zoom panel position and panning on mouse move */
+      carousel.addEventListener('mousemove', (e) => {
+        const rect = carousel.getBoundingClientRect();
+        const x    = e.clientX - rect.left;
+        const y    = e.clientY - rect.top;
+        const pctX = Math.max(0, Math.min(1, x / rect.width));
+        const pctY = Math.max(0, Math.min(1, y / rect.height));
+
+        /* Position panel to the right of cursor, flip left if near edge */
+        let left = e.clientX + OFFSET;
+        let top  = e.clientY - PANEL_H / 2;
+
+        if (left + PANEL_W > window.innerWidth - 8)  left = e.clientX - PANEL_W - OFFSET;
+        if (top < 8)                                  top  = 8;
+        if (top + PANEL_H > window.innerHeight - 8)  top  = window.innerHeight - PANEL_H - 8;
+
+        zoomPanel.style.left = left + 'px';
+        zoomPanel.style.top  = top  + 'px';
+
+        /* Pan the zoomed image: offset is proportional to cursor position */
+        const imgW = PANEL_W * ZOOM;
+        const imgH = PANEL_H * ZOOM;
+        zoomImg.style.left = -(pctX * (imgW - PANEL_W)) + 'px';
+        zoomImg.style.top  = -(pctY * (imgH - PANEL_H)) + 'px';
+
+        /* Keep zoom src in sync with active slide */
+        const src = getActiveImgSrc();
+        if (src && zoomImg.src !== src) zoomImg.src = src;
       });
     });
   }
