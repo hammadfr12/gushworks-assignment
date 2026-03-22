@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Products — Gushworks Industrial Yarn Machinery</title>
+  <meta name="description" content="Browse Gushworks' full range of industrial yarn twisting machinery. From Two For One Twisters to packaging and fishnet solutions." />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+</head>
+<body>
+
+<!-- NAVBAR -->
+<header class="navbar" role="banner">
+  <div class="container">
+    <a href="index.html" class="navbar__logo" aria-label="Gushworks home">
+      <img src="assets/logo.png" alt="Gushworks Logo" width="109" height="45" />
+    </a>
+    <nav class="navbar__right">
+      <a href="about.html" class="nav-link">About Us</a>
+      <div class="nav-dropdown">
+        <button class="nav-link" aria-haspopup="true" aria-expanded="false">
+          Products
+          <span class="nav-dropdown__icon" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 12L10 8L6 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+        </button>
+        <ul class="dropdown-menu" role="menu">
+          <li><a href="product-detail.html" role="menuitem">Two For One Twister</a></li>
+          <li><a href="products.html" role="menuitem">Packaging Line</a></li>
+          <li><a href="products.html" role="menuitem">Fishnet Unit</a></li>
+          <li><a href="products.html" role="menuitem">All Products</a></li>
+        </ul>
+      </div>
+      <a href="contact.html" class="btn-nav">Contact Us</a>
+    </nav>
+    <button class="hamburger" aria-label="Toggle mobile menu"><span></span><span></span><span></span></button>
+  </div>
+</header>
+<nav class="mobile-nav">
+  <a href="index.html">Home</a>
+  <a href="about.html">About Us</a>
+  <a href="products.html">Products</a>
+  <a href="product-detail.html">Two For One Twister</a>
+  <a href="contact.html" class="btn-mobile-contact">Contact Us</a>
+</nav>
+
+<main class="page-body">
+
+  <!-- Hero -->
+  <section class="contact-hero" aria-label="Products page header">
+    <div class="container">
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a href="index.html">Home</a>
+        <span class="sep" aria-hidden="true">›</span>
+        <span class="current">Products</span>
+      </nav>
+      <div class="section-label">Our Range</div>
+      <h1 class="section-heading" style="max-width:600px;">Complete Industrial Yarn Machinery Solutions</h1>
+      <p class="section-subheading">From compact units to large-scale production lines — every Gushworks machine is built for longevity, precision, and versatility.</p>
+    </div>
+  </section>
+
+  <!-- Products Grid -->
+  <section class="products-section" aria-label="Product listing">
+    <div class="container">
+      <!-- Filter bar -->
+      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:32px;">
+        <button class="btn btn-primary btn-sm" style="font-size:13px;">All Industries</button>
+        <button class="btn btn-outline btn-sm" style="font-size:13px;">Packaging</button>
+        <button class="btn btn-outline btn-sm" style="font-size:13px;">Fishnet</button>
+        <button class="btn btn-outline btn-sm" style="font-size:13px;">Textile</button>
+        <button class="btn btn-outline btn-sm" style="font-size:13px;">Technical Textiles</button>
+      </div>
+
+      <div class="products-grid">
+        <article class="product-card" data-reveal>
+          <div class="product-card__img">
+            <img src="assets/product-main.png" alt="Two For One Twister" loading="lazy" />
+          </div>
+          <div class="product-card__body">
+            <div class="product-card__tag">Flagship</div>
+            <h2 class="product-card__title">Two For One Twister</h2>
+            <p class="product-card__desc">High-output twisting for PP, Nylon, Polyester, HDPE. 48–240 spindles. Up to 8,000 RPM. VFD controlled.</p>
+            <p style="font-size:15px;font-weight:700;color:var(--text-primary);margin-bottom:12px;">₹4,80,000 – ₹7,90,000</p>
+            <a href="product-detail.html" class="product-card__link">View Details →</a>
+          </div>
+        </article>
+        <article class="product-card" data-reveal>
+          <div class="product-card__img" style="background:#EFF6FF;display:flex;align-items:center;justify-content:center;font-size:72px;">📦</div>
+          <div class="product-card__body">
+            <div class="product-card__tag">Packaging</div>
+            <h2 class="product-card__title">PKG-Series Twister</h2>
+            <p class="product-card__desc">Optimized for sack yarn at high throughput. Auto-bobbin change, integrated winding. For HDPE/PP sack manufacturers.</p>
+            <p style="font-size:15px;font-weight:700;color:var(--text-primary);margin-bottom:12px;">₹3,20,000 – ₹5,80,000</p>
+            <button class="product-card__link" data-modal="modal-quote">Request a Quote →</button>
+          </div>
+        </article>
+        <article class="product-card" data-reveal>
+          <div class="product-card__img" style="background:#F0FFF4;display:flex;align-items:center;justify-content:center;font-size:72px;">🐟</div>
+          <div class="product-card__body">
+            <div class="product-card__tag">Fishnet</div>
+            <h2 class="product-card__title">FN-Series Twister</h2>
+            <p class="product-card__desc">Precision monofilament and multifilament nylon twisting for uniform mesh fishing nets. Compact design, industrial duty.</p>
+            <p style="font-size:15px;font-weight:700;color:var(--text-primary);margin-bottom:12px;">₹2,80,000 – ₹4,50,000</p>
+            <button class="product-card__link" data-modal="modal-quote">Request a Quote →</button>
+          </div>
+        </article>
+        <article class="product-card" data-reveal>
+          <div class="product-card__img" style="background:#FFF7F0;display:flex;align-items:center;justify-content:center;font-size:72px;">🧵</div>
+          <div class="product-card__body">
+            <div class="product-card__tag">Textile</div>
+            <h2 class="product-card__title">XT-Series Twister</h2>
+            <p class="product-card__desc">Versatile twisting for apparel and home textiles. Handles fine to coarse counts across synthetic and natural blends.</p>
+            <p style="font-size:15px;font-weight:700;color:var(--text-primary);margin-bottom:12px;">₹3,50,000 – ₹6,20,000</p>
+            <button class="product-card__link" data-modal="modal-quote">Request a Quote →</button>
+          </div>
+        </article>
+        <article class="product-card" data-reveal>
+          <div class="product-card__img" style="background:#F5F0FF;display:flex;align-items:center;justify-content:center;font-size:72px;">🏗️</div>
+          <div class="product-card__body">
+            <div class="product-card__tag">Technical Textiles</div>
+            <h2 class="product-card__title">GT-Series Industrial Twister</h2>
+            <p class="product-card__desc">Engineered for geo-textiles, composites, and reinforcement yarns. High-tenacity yarn handling with tension monitoring.</p>
+            <p style="font-size:15px;font-weight:700;color:var(--text-primary);margin-bottom:12px;">₹5,00,000 – ₹9,00,000</p>
+            <button class="product-card__link" data-modal="modal-quote">Request a Quote →</button>
+          </div>
+        </article>
+        <article class="product-card" data-reveal>
+          <div class="product-card__img" style="background:#FFF0F5;display:flex;align-items:center;justify-content:center;font-size:72px;">⚙️</div>
+          <div class="product-card__body">
+            <div class="product-card__tag">Custom</div>
+            <h2 class="product-card__title">Custom-Built Solutions</h2>
+            <p class="product-card__desc">Need a non-standard configuration? Our engineering team builds bespoke twisting solutions to your exact specification.</p>
+            <p style="font-size:15px;font-weight:700;color:var(--text-primary);margin-bottom:12px;">Price on enquiry</p>
+            <a href="contact.html" class="product-card__link">Contact Us →</a>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section">
+    <div class="container">
+      <div class="cta-box" data-reveal>
+        <div class="cta-box__content">
+          <h2 class="cta-box__title">Not Sure Which Machine<br>Is Right For You?</h2>
+          <p class="cta-box__subtitle">Speak to our product engineers — we'll recommend the best configuration for your yarn type and output target.</p>
+        </div>
+        <div class="cta-box__action">
+          <button class="btn btn-white" data-modal="modal-quote">Talk to an Engineer</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="footer" aria-label="Site footer">
+  <!-- Brand card -->
+  <div class="container">
+    <div class="footer-brand-card">
+      <div class="footer-brand-card__logo">
+        <img src="assets/logo.png" alt="Gushworks" width="140" height="45" />
+      </div>
+      <div class="footer-brand-card__tagline">
+        Premium <span>Yarn Twisting Machinery</span><br>Manufacturer in India
+      </div>
+    </div>
+  </div>
+  <!-- Four columns -->
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-col">
+        <h4>About Us</h4>
+        <ul><li><a href="about.html">About Us</a></li></ul>
+      </div>
+      <div class="footer-col">
+        <h4>Categories</h4>
+        <ul>
+          <li><a href="products.html">Packaging Industry Solutions</a></li>
+          <li><a href="products.html">Fishnet Manufacturing</a></li>
+          <li><a href="products.html">PPMF/Tapes and Twines</a></li>
+          <li><a href="products.html">FIBC and Woven Sack</a></li>
+          <li><a href="products.html">Carpet and Rugs Industry</a></li>
+          <li><a href="products.html">Technical Textiles</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Products</h4>
+        <ul>
+          <li><a href="product-detail.html">Two For One Twister</a></li>
+          <li><a href="products.html">TPRS Twister Machine</a></li>
+          <li><a href="products.html">Ring Twisting Machines</a></li>
+          <li><a href="products.html">Covering Machines</a></li>
+          <li><a href="products.html">Heat Setting Equipment</a></li>
+          <li><a href="products.html">Servo Controlled Winders</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Contact</h4>
+        <div class="footer-contact-list">
+          <div class="footer-contact-item">
+            <span class="footer-contact-icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></span>
+            <span>2126, Road No. 2, GIDC Sachin, Surat – 394 230<br>Gujarat, India</span>
+          </div>
+          <div class="footer-contact-item">
+            <span class="footer-contact-icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.28h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.36a16 16 0 0 0 6.06 6.06l.94-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span>
+            <a href="tel:+911234567890">+91 12345 67890</a>
+          </div>
+          <div class="footer-contact-item">
+            <span class="footer-contact-icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></span>
+            <a href="mailto:info@gushworks.com">info@gushworks.com</a>
+          </div>
+          <div class="footer-contact-item">
+            <span class="footer-contact-icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg></span>
+            <a href="mailto:support@gushworks.com">support@gushworks.com</a>
+          </div>
+        </div>
+        <div class="footer-socials" aria-label="Social media links">
+          <a href="#" class="footer-social-link" aria-label="LinkedIn"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6zM2 9h4v12H2z"/><circle cx="4" cy="4" r="2"/></svg></a>
+          <a href="#" class="footer-social-link" aria-label="X (Twitter)"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+          <a href="#" class="footer-social-link" aria-label="Instagram"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Bottom bar -->
+  <div class="container">
+    <div class="footer-bottom">
+      <p>Copyright © 2025 Gushworks | All Rights Reserved</p>
+      <nav class="footer-bottom-links" aria-label="Legal links">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+        <a href="#">Sitemap</a>
+      </nav>
+    </div>
+  </div>
+</footer>
+
+
+<!-- Modal -->
+<div class="modal-backdrop" id="modal-quote" role="dialog" aria-modal="true" aria-labelledby="modal-q-title">
+  <div class="modal-box">
+    <button class="modal-close" aria-label="Close">✕</button>
+    <h2 class="modal-title" id="modal-q-title">Request a Quote</h2>
+    <p class="modal-subtitle">Our team will get back to you within 24 business hours with pricing and specs.</p>
+    <form data-form novalidate>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="pq-name">Full Name *</label>
+          <input class="form-input" id="pq-name" type="text" placeholder="Your name" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="pq-company">Company</label>
+          <input class="form-input" id="pq-company" type="text" placeholder="Company name" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="pq-email">Email *</label>
+        <input class="form-input" id="pq-email" type="email" placeholder="you@company.com" required />
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="pq-phone">Phone *</label>
+        <input class="form-input" id="pq-phone" type="tel" placeholder="+91 XXXXX XXXXX" required />
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="pq-msg">Requirements</label>
+        <textarea class="form-textarea" id="pq-msg" placeholder="Which product are you interested in? Your output needs..."></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%;">Submit Enquiry</button>
+    </form>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
