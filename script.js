@@ -104,35 +104,30 @@
     const dropdowns = $$('.nav-dropdown');
 
     dropdowns.forEach(dropdown => {
-      const trigger = $('.nav-link', dropdown);
-      let closeTimer = null;
+      var btn = dropdown.querySelector('.nav-link');
+      if (!btn) return;
 
-      // Open on click (toggle)
-      on(trigger, 'click', (e) => {
+      btn.addEventListener('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
-        const isOpen = dropdown.classList.contains('active');
-        dropdowns.forEach(d => d.classList.remove('active'));
+        var isOpen = dropdown.classList.contains('active');
+        dropdowns.forEach(function(d) { d.classList.remove('active'); });
         if (!isOpen) dropdown.classList.add('active');
+        btn.setAttribute('aria-expanded', !isOpen ? 'true' : 'false');
       });
 
-      // Open immediately on hover
-      on(dropdown, 'mouseenter', () => {
-        if (closeTimer) { clearTimeout(closeTimer); closeTimer = null; }
-        dropdowns.forEach(d => { if (d !== dropdown) d.classList.remove('active'); });
+      // Also open on hover for desktop
+      dropdown.addEventListener('mouseenter', function() {
         dropdown.classList.add('active');
+        btn.setAttribute('aria-expanded', 'true');
       });
-
-      // Close after short delay so user can move mouse to menu items
-      on(dropdown, 'mouseleave', () => {
-        closeTimer = setTimeout(() => {
-          dropdown.classList.remove('active');
-        }, 150);
+      dropdown.addEventListener('mouseleave', function() {
+        dropdown.classList.remove('active');
+        btn.setAttribute('aria-expanded', 'false');
       });
     });
 
-    // Close on outside click
-    on(document, 'click', () => {
+    on(document, 'click',, () => {
       dropdowns.forEach(d => d.classList.remove('active'));
     });
   }
@@ -218,84 +213,67 @@
      panning the zoomed image as the cursor moves over the carousel.
   ----------------------------------------------------------------------- */
   function initZoom() {
-    const carousel = document.querySelector('.carousel[data-zoom]');
+    // Only runs on product-detail page
+    var carousel = document.getElementById('product-carousel');
     if (!carousel) return;
 
-    const wrapper   = carousel.closest('.carousel-wrapper');
-    if (!wrapper) return;
+    // Zoom panel is outside carousel-wrapper so fixed positioning works
+    var panel = document.getElementById('zoomPanel');
+    if (!panel) return;
 
-    const zoomPanel = wrapper.querySelector('.zoom-panel');
-    const zoomImg   = zoomPanel && zoomPanel.querySelector('img');
-    const lens      = wrapper.querySelector('.zoom-lens');
-    if (!zoomPanel || !zoomImg || !lens) return;
+    var img = panel.querySelector('img');
+    if (!img) return;
 
-    const LW = 150;
-    const LH = 150;
-    const ZOOM = 2.5;
-    const PW = 420;
-    const PH = 420;
+    var ZOOM = 2.5;
+    var PW = 420, PH = 420;
+    var iW = PW * ZOOM;
+    var iH = PH * ZOOM;
 
-    function getActiveSrc() {
-      const a = carousel.querySelector('.carousel__slide.active img');
+    // Pre-set image size
+    img.style.width  = iW + 'px';
+    img.style.height = iH + 'px';
+
+    function getSrc() {
+      var a = carousel.querySelector('.carousel__slide.active img');
       if (a) return a.src;
-      const f = carousel.querySelector('.carousel__slide img');
+      var f = carousel.querySelector('.carousel__slide img');
       return f ? f.src : '';
     }
 
-    function updateZoomImg() {
-      const src = getActiveSrc();
-      if (src) {
-        zoomImg.src = src;
-        zoomImg.style.width  = (PW * ZOOM) + 'px';
-        zoomImg.style.height = (PH * ZOOM) + 'px';
-      }
-    }
-
-    carousel.addEventListener('mouseenter', () => {
-      updateZoomImg();
-      lens.style.width  = LW + 'px';
-      lens.style.height = LH + 'px';
-      lens.style.display = 'block';
-      zoomPanel.classList.add('visible');
+    carousel.addEventListener('mouseenter', function() {
+      var src = getSrc();
+      if (src) img.src = src;
     });
 
-    carousel.addEventListener('mouseleave', () => {
-      lens.style.display = 'none';
-      zoomPanel.classList.remove('visible');
+    carousel.addEventListener('mouseleave', function() {
+      panel.style.display = 'none';
     });
 
-    carousel.addEventListener('mousemove', (e) => {
-      const cRect = carousel.getBoundingClientRect();
-      const wRect = wrapper.getBoundingClientRect();
+    carousel.addEventListener('mousemove', function(e) {
+      // Show panel
+      panel.style.display = 'block';
 
-      // Cursor position relative to carousel
-      let cx = e.clientX - cRect.left;
-      let cy = e.clientY - cRect.top;
+      var r = carousel.getBoundingClientRect();
 
-      // Lens position clamped inside carousel, but relative to wrapper
-      let lx = cx - LW / 2;
-      let ly = cy - LH / 2;
-      lx = Math.max(0, Math.min(lx, cRect.width  - LW));
-      ly = Math.max(0, Math.min(ly, cRect.height - LH));
+      // Position panel to the right of carousel using viewport coords
+      var px = r.right + 16;
+      var py = r.top;
+      if (px + PW > window.innerWidth - 8) px = r.left - PW - 16;
+      if (py + PH > window.innerHeight - 8) py = window.innerHeight - PH - 8;
+      panel.style.left = px + 'px';
+      panel.style.top  = py + 'px';
 
-      // Offset from wrapper top-left
-      lens.style.left = (cRect.left - wRect.left + lx) + 'px';
-      lens.style.top  = (cRect.top  - wRect.top  + ly) + 'px';
+      // Pan zoom image based on cursor position
+      var cx = Math.max(0, Math.min(e.clientX - r.left, r.width));
+      var cy = Math.max(0, Math.min(e.clientY - r.top, r.height));
+      var rx = cx / r.width;
+      var ry = cy / r.height;
+      img.style.left = -(rx * (iW - PW)) + 'px';
+      img.style.top  = -(ry * (iH - PH)) + 'px';
 
-      // Zoom panel: fixed, to the right of carousel
-      zoomPanel.style.left = (cRect.right + 16) + 'px';
-      zoomPanel.style.top  = cRect.top + 'px';
-
-      // Pan zoom image
-      const iW = PW * ZOOM;
-      const iH = PH * ZOOM;
-      const rx = lx / Math.max(1, cRect.width  - LW);
-      const ry = ly / Math.max(1, cRect.height - LH);
-      zoomImg.style.left = -(rx * (iW - PW)) + 'px';
-      zoomImg.style.top  = -(ry * (iH - PH)) + 'px';
-
-      // Sync src
-      updateZoomImg();
+      // Sync src with active slide
+      var src = getSrc();
+      if (src && img.src !== src) img.src = src;
     });
   }
 

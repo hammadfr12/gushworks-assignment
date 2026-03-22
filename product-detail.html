@@ -76,11 +76,6 @@
                 Hover to zoom
               </div>
             </div>
-            <!-- Lens overlays the carousel, outside overflow:hidden -->
-            <div class="zoom-lens" id="zoomLens"></div>
-            </div>
-            <!-- Zoom panel -->
-            <div class="zoom-panel" aria-hidden="true"><img src="product-main.png" alt="" /></div>
             <!-- Dots -->
             <div class="carousel__dots" role="tablist">
               <button class="carousel__dot active" role="tab" aria-label="Image 1"></button>
@@ -96,6 +91,8 @@
               <button class="carousel__thumb" aria-label="View image 4"><img src="product-main.png" alt="Thumb 4" /></button>
             </div>
           </div>
+          <!-- Zoom panel: outside carousel-wrapper so fixed positioning works -->
+          <div class="zoom-panel" id="zoomPanel" aria-hidden="true"><img src="product-main.png" alt="" /></div>
         </div>
 
         <!-- RIGHT: Info -->
