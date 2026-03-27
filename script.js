@@ -101,39 +101,20 @@
      PRODUCTS DROPDOWN
   ----------------------------------------------------------------------- */
   function initDropdown() {
-    /* -----------------------------------------------------------------
-       Dropdown opens on HOVER (mouseenter/mouseleave on the whole
-       .nav-dropdown element which includes both the trigger button AND
-       the menu — so moving the mouse from button to menu items does NOT
-       close it).
-       Also supports click-toggle for keyboard/accessibility.
-    ----------------------------------------------------------------- */
     const dropdowns = $$('.nav-dropdown');
 
     dropdowns.forEach(dropdown => {
       const trigger = $('.nav-link', dropdown);
-
-      // Click toggle (accessibility + mobile fallback)
       on(trigger, 'click', (e) => {
         e.preventDefault();
         e.stopPropagation();
         const isOpen = dropdown.classList.contains('active');
+        // close all
         dropdowns.forEach(d => d.classList.remove('active'));
         if (!isOpen) dropdown.classList.add('active');
       });
-
-      // Hover — open on mouseenter of whole dropdown (button + menu)
-      on(dropdown, 'mouseenter', () => {
-        dropdown.classList.add('active');
-      });
-
-      // Hover — close on mouseleave of whole dropdown
-      on(dropdown, 'mouseleave', () => {
-        dropdown.classList.remove('active');
-      });
     });
 
-    // Click outside closes all
     on(document, 'click', () => {
       dropdowns.forEach(d => d.classList.remove('active'));
     });
@@ -218,78 +199,57 @@
      panning the zoomed image as the cursor moves over the carousel.
   ----------------------------------------------------------------------- */
   function initZoom() {
-    /* ---------------------------------------------------------------
-       Zoom on hover for product carousel only (.carousel[data-zoom])
-       
-       How it works:
-       - zoom-panel is position:fixed, hidden by default (display:none)
-       - On mousemove: panel is shown, positioned to the right of cursor
-       - zoom image inside panel is 200%x200% of panel = 800x800px
-       - Panning: image moves from 0% to -50% (= 0 to -400px) as cursor
-         moves from left→right / top→bottom across the carousel
-       - On mouseleave: panel is hidden
-    --------------------------------------------------------------- */
     const carousels = $$('.carousel[data-zoom]');
     carousels.forEach(carousel => {
-      // Find zoom panel — it's a sibling inside .carousel-wrapper
-      const wrapper   = carousel.closest('.carousel-wrapper');
-      const zoomPanel = wrapper ? $('.zoom-panel', wrapper) : null;
+      const zoomPanel = $('.zoom-panel');
       if (!zoomPanel) return;
 
       const zoomImg = $('img', zoomPanel);
-      if (!zoomImg) return;
 
-      // Hide on mouse leave
-      on(carousel, 'mouseleave', () => {
-        zoomPanel.style.display = 'none';
-      });
+      on(carousel, 'mouseenter', () => zoomPanel.classList.add('visible'));
+      on(carousel, 'mouseleave', () => zoomPanel.classList.remove('visible'));
 
       on(carousel, 'mousemove', (e) => {
-        // Show panel on first move (avoids flash at 0,0 on mouseenter)
-        zoomPanel.style.display = 'block';
+        const rect  = carousel.getBoundingClientRect();
+        const x     = e.clientX - rect.left;
+        const y     = e.clientY - rect.top;
+        const pctX  = x / rect.width;
+        const pctY  = y / rect.height;
 
-        const rect = carousel.getBoundingClientRect();
-        const x    = e.clientX - rect.left;
-        const y    = e.clientY - rect.top;
-        // Cursor position as ratio 0→1
-        const pctX = Math.max(0, Math.min(1, x / rect.width));
-        const pctY = Math.max(0, Math.min(1, y / rect.height));
+        // --- Position zoom panel near cursor, clamped inside viewport ---
+        const panelW    = 380;
+        const panelH    = 380;
+        let panelLeft   = e.clientX + 20;
+        let panelTop    = e.clientY - panelH / 2;
 
-        // Position zoom panel to the right of the cursor
-        // (flip to left side if near right viewport edge)
-        const panelW = 400;
-        const panelH = 400;
-        let panelLeft = e.clientX + 20;
-        let panelTop  = e.clientY - panelH / 2;
-
-        if (panelLeft + panelW > window.innerWidth - 8)
-          panelLeft = e.clientX - panelW - 20;
-        if (panelTop < 8)
-          panelTop = 8;
-        if (panelTop + panelH > window.innerHeight - 8)
-          panelTop = window.innerHeight - panelH - 8;
+        if (panelLeft + panelW > window.innerWidth)  panelLeft = e.clientX - panelW - 20;
+        if (panelTop < 8)                             panelTop  = 8;
+        if (panelTop + panelH > window.innerHeight - 8) panelTop = window.innerHeight - panelH - 8;
 
         zoomPanel.style.left = panelLeft + 'px';
         zoomPanel.style.top  = panelTop  + 'px';
 
-        // Pan the zoomed image
-        // Image is 200%x200% of panel = 800x800px
-        // Panel is 400x400px → max pan = 400px = 50% of image
-        // So: left goes from 0% to -50%, top goes from 0% to -50%
-        zoomImg.style.left = (-pctX * 50) + '%';
-        zoomImg.style.top  = (-pctY * 50) + '%';
+        // --- Pan the zoomed image based on cursor position ---
+        if (zoomImg) {
+          zoomImg.style.left = (-pctX * 100) + '%';
+          zoomImg.style.top  = (-pctY * 100) + '%';
+        }
 
-        // Sync zoom image src with currently visible slide
-        const track     = $('.carousel__track', carousel);
-        const style     = window.getComputedStyle(track);
-        const matrix    = new DOMMatrix(style.transform);
-        const slideW    = rect.width;
-        const activeIdx = slideW > 0 ? Math.round(-matrix.m41 / slideW) : 0;
-        const slides    = $$('.carousel__slide', track);
-        const active    = slides[activeIdx] || slides[0];
-        if (active) {
-          const img = $('img', active);
-          if (img && img.src !== zoomImg.src) zoomImg.src = img.src;
+        // --- Update zoom src: find the CURRENTLY ACTIVE slide's image ---
+        if (zoomImg) {
+          const track  = $('.carousel__track', carousel);
+          // Derive active index from track's translateX offset
+          const style  = window.getComputedStyle(track);
+          const matrix = new DOMMatrix(style.transform);
+          const slideW = carousel.getBoundingClientRect().width;
+          const activeIdx = slideW > 0 ? Math.round(-matrix.m41 / slideW) : 0;
+
+          const slides    = $$('.carousel__slide', track);
+          const activeSlide = slides[activeIdx] || slides[0];
+          if (activeSlide) {
+            const img = $('img', activeSlide);
+            if (img && img.src !== zoomImg.src) zoomImg.src = img.src;
+          }
         }
       });
     });
