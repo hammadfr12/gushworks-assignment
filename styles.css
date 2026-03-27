@@ -315,7 +315,7 @@ ul { list-style: none; }
 }
 .hero-noise {
   position: absolute; inset: 0;
-  background-image: url('assets/noise-texture.png');
+  background-image: url('noise-texture.png');
   background-size: cover;
   opacity: 0.5;
   pointer-events: none;
